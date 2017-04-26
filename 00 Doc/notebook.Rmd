@@ -1,0 +1,93 @@
+---
+title: "Final Project"
+author: "Lehmann Jacob - Sanchez Luis - Minh-Tri Ho (mh47723) - Minh-Tuan Ho (mh47727)"
+date: "April 17, 2017"
+output: 
+  html_document:
+    toc: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+# **Introduction**
+
+This is Final Project of the course CS329e Elements of Data Visualization. This notebook includes every step that we took to build our projet. In this project, we analysize sociological metrics from 2008-2014 and compare it to economitrics of The United States production during 1970 through 1986. We analyze correlations between education, peace, state unemployemnt, utilities along with infrastucture, to name a few.
+
+# **The Data**
+
+The US Production data set was collected from  and the US Sociological metrics was obtain from   and both uploaded to a private dataset on  We will use data from both datasets to analyze how today's education and poverty would have looked in the 1970s and 1980s compared to the US states production in capital stock. 
+
+The US Sociological metric dataset is composed of 50 observations (one per state) of 4 variables, whcih makes a total of 200 records, While the US States production set is comprised by 816 observations of 11 variables, which makes a total of less than 9,000 records. With a total of round 9,200 records from both datasets.
+
+
+# **R Configuration**
+
+Below is the sessionInfo():
+
+```{r sessionInfo}
+#Load data and required packages
+sessionInfo(package=NULL)
+```
+
+<!-- # ```{r, echo=FALSE} -->
+<!-- # ``` -->
+
+<!-- # **Subset and Summary** -->
+
+<!-- ## *Head and Summary* -->
+
+<!-- ```{r} -->
+<!-- #Downloading the data from data.world -->
+<!-- source("../01 Data/loading.R") -->
+<!-- ``` -->
+
+# **Data Visualization #1: Tableau - Water Capital Stock vs Percent above Poverty by State over Time**
+
+## *Description*
+With this visualization we try interprete how much being over the poverty line for each state (based on household income) affects the water and sewer capital stock. 
+
+## *Graph*
+
+
+## *Interpretation*
+
+We can see that for each state the aggregate of the water over "the state percent abover the poverty line" increases due to the water stock capital increasing through time and each state. The higher the capital the state has for water the higher this aggregate number is. Because the majority of the people are over the poverty line, the higher this percent number is, the more water and sewer is used through out the state. This correlates with the unemployment rate for each state and it's education aswell. 
+
+# **Data Visualization #2: Tableau - Employment vs. Education by State over Time**
+
+## *Description*
+
+The amount of people with a degree increases the more opportunity a person has at obtaining a job. With this visualization we analyze the sum employment in non-agricultural payrolls per state vs the education for each state over 16 years using the education percentage (amount of people that have earned a bachelors degree) of today's dataset.
+
+## *Graph*
+
+
+## *Interpretation*
+After analyzing the crosstab, we concluded that education plays a factor on the employment rate for each state. If the labor input of the non-agricultural employed changes, the KPI of this visualization changes. When the percent of the people who earn a Bachelor degree increases, the employment increases. The majority of the states had an small increase of the KPI, while others suffer a small decrease through out each year.
+
+# **Data Visualization #3: Tableau - Unemployment Vs Infrastucture/GSP ratio by State over Time**
+
+## *Description*
+
+Through this visualization we compare the unemployment from each state against the GSP (Gross State Products) for the same state. We try to find a correlation between how the unemployment affects or benefits in any way the GSP for given state and it's economy.
+
+
+## *Graph*
+
+
+
+## *Interpretation*
+
+Through the analization of the crosstab of the two sets. We came to the conclusion that the state has a better GSP, when the infrastucture along with util and water are high. The unemployment of the state comes in factor because when the unemployment is low, there is a higher water and util stock per capital, increasing the KPI. Through out the data, there were ups and downs for each state as the time progressed. It correlates in some years with the employment vs education. Creating a good economy for each state depending on the GSP and the total stock per capita for hwy, water, and utils. Having a better infrastructure through out the state along with the economy.
+
+# **Shiny CrossTab**
+
+With this app hosted with Shinyapps, the crosstabs for each visualization can be viewed through this link: by selecting either Visu1, Visu2, Visu3
+
+
+# **Conclusion**
+
+In conclusion, we can see that the education percent along with the poverty percent from 2008-2014 has an effect on the US States production which measures the the econometrics for each of the 50 states in the United States. We concluded that the percent above the poverty line has an effect on the water per capital for each state along with 16 years, [1970-1986]. Also, the percent of people who have earned a Bachelor's degree has an effect on the employment of non-agricultural payrolls by state. Along with these two visualization we also found a correlation of the GSP, where the higher the GSP the less unemployed people were for each state, increasing the hwy, water, util capital of each state, resulting in a better infrastructure. The employement and poverty percent from the US State Sociological metrics has a positive effect on the US States production dataset from 1970 through 1986.
