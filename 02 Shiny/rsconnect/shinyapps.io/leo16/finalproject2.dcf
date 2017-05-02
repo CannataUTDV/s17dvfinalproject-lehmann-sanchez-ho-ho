@@ -3,8 +3,9 @@ title: FinalProject
 account: leo16
 server: shinyapps.io
 appId: 177071
-bundleId: 811889
+bundleId: 812131
 url: https://leo16.shinyapps.io/finalproject2/
-when: 1493734424.63723
+when: 1493743246.11294
 asMultiple: FALSE
 asStatic: FALSE
+ignoredFiles: www/.DS_Store|www/notebook.nb.html

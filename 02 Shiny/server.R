@@ -15,7 +15,6 @@ library(geojsonio)
 library(ggplot2)
 library(tidyr)
 
-
 online0 = TRUE
 
 # The following query is for the select list in the Boxplots -> Simple Boxplot tab, and Barcharts -> Barchart with Table Calculation tab.
@@ -87,10 +86,15 @@ shinyServer(function(input, output) {
   
   output$boxplotPlot1 <- renderPlotly({
     #View(dfbp3())
-    p <- ggplot(dfbp2()) + 
-      geom_boxplot(aes(x=StateName, y=WhitePopulation, colour="red")) + 
+    dat_m <- dfbp2()[, c("StateName","WhitePopulation","WhitePopulationBelowPovertyLVL","BlackPopulation","BlackPopulationBelowPovertyLVL","LatinoHispanic","LatinoHispanicBelowPovertyLVL")]
+    dat_m <- melt(dat_m, id.vars = c("StateName"),
+                  measure.vars = c("WhitePopulationBelowPovertyLVL","WhitePopulation","BlackPopulationBelowPovertyLVL","BlackPopulation","LatinoHispanicBelowPovertyLVL","LatinoHispanic"))
+    #print(dat_m)
+    p <- ggplot(dat_m) + 
+      geom_boxplot(aes(x=StateName, y=value, colour=variable)) + 
       #ylim(0, input$boxSalesRange1[2]) +
-      theme(axis.text.x=element_text(angle=90, size=10, vjust=0.5))
+      theme(axis.text.x=element_text(angle=90, size=10, vjust=0.5))+
+      labs(x="States",y="Population")
     ggplotly(p)
   })
   # End Box Plot Tab ___________________________________________________________
@@ -122,10 +126,11 @@ from PovertyUSAStates",
     dat_m <- melt(dat_m, id.vars = c("StateName","kpi","ratio"),
                   measure.vars = c("WhitePopulation","BlackPopulation","LatinoHispanic"))
     ggplot(dat_m) + 
-      theme(axis.text.x=element_text(angle=90, size=16, vjust=0.5)) + 
+      theme(axis.text.x=element_text(size=16, vjust=0.5)) + 
       theme(axis.text.y=element_text(size=16, hjust=0.5)) +
       geom_text(aes(x=variable, y=StateName, label=value), size=6) +
-      geom_tile(aes(x=variable, y=StateName, fill=kpi), alpha=0.50)
+      geom_tile(aes(x=variable, y=StateName, fill=kpi), alpha=0.50)+
+      labs(y="States",x="Ethnicity")
   })
   # End Crosstab Tab ___________________________________________________________
   
@@ -137,7 +142,7 @@ from PovertyUSAStates",
         data.world(propsfile = "www/.data.world"),
         dataset="lordlemon/s-17-edv-final-project", type="sql",
         query="select StateName, HispanicLatinoAbove200 from IncomeAbove200"
-      ) # %>% View()
+      )  #%>% View()
     }
     })
   
@@ -183,8 +188,9 @@ from PovertyUSAStates",
     p <- ggplot(dat_m, aes(TotalPopulationNOHI, value, colour = variable, state)) + 
     theme(axis.text.x=element_text(angle=90, size=16, vjust=0.5)) + 
     theme(axis.text.y=element_text(size=16, hjust=0.5)) +
-    geom_point(size=2)+
-    geom_text(aes(label=State),size = 3,hjust = .6)
+    geom_point(aes(label = State), size=2) +
+      stat_summary(aes(y = value,group=2), fun.y=mean, colour="red", geom="line",group=2) +
+      labs(x="Total Populaton with no HI",y="Amount of people")
 
   ggplotly(p)
   
@@ -240,11 +246,12 @@ from PovertyUSAStates p inner join IncomeAbove200 i on p.StateName = i.StateName
       scale_y_continuous(labels = scales::comma) + # no scientific notation
       theme(axis.text.x=element_text(angle=0, size=12, vjust=0.5)) + 
       theme(axis.text.y=element_text(size=12, hjust=0.5)) +
-      geom_bar(stat = "identity",position = "dodge")  +
+      geom_bar(stat = "identity",position = "dodge")+
+      labs(x="States",y="Percent Below Poverty Level")+
       #facet_wrap(~County, ncol=4) + 
       coord_flip()+
       # Add sum_sales, and (sum_sales - window_avg_sales) label.
-      #geom_text(mapping=aes(x=StateName, y=value, label=round(BlackPovertyPercent)),colour="black", hjust=-.5) 
+      #geom_text(mapping=aes(x=StateName, y=value, label=(value)),colour="black", hjust=.5,vjust=.5) +
      # geom_text(mapping=aes(x=County, y=BlackPovertyPercent, label=round)),colour="blue", hjust=-4) +
       #Add reference line with a label.
        geom_hline(aes(yintercept = mean(value), colour="black"))
@@ -296,7 +303,7 @@ from PovertyUSAStates p inner join IncomeAbove200 i on p.StateName = i.StateName
   # End Barchart Tab ___________________________________________________________
 
   # Begin Wealth Tab ------------------------------------------------------------------
-  dfwe <- eventReactive(input$click4, {
+  dfwe <- eventReactive(input$click6, {
     if(online4() == "SQL") {
       print("Getting from data.world")
       query(
