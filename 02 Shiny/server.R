@@ -1,7 +1,6 @@
 # server.R
 require(ggplot2)
 require(dplyr)
-library(tidyr)
 require(shiny)
 require(shinydashboard)
 require(data.world)
@@ -11,11 +10,10 @@ require(leaflet)
 require(plotly)
 require(lubridate)
 library(reshape2)
-
-
 library(geojson)
 library(geojsonio)
-
+library(ggplot2)
+library(tidyr)
 
 
 online0 = TRUE
@@ -34,7 +32,17 @@ states_list <- append(list("All" = "All"), states_list)
 
 ############################### Start shinyServer Function ####################
 
+
+
 shinyServer(function(input, output) {   
+  # These widgets are for the Box Plots tab.
+  online5 = reactive({input$rb5})
+  output$boxplotStates <- renderUI({selectInput("selectedBoxplotStates", "Choose States:",
+                                                states_list, multiple = TRUE, selected='All') })
+  
+  # These widgets are for the Histogram tab.
+  online4 = reactive({input$rb4})
+  
   # These widgets are for the Scatter Plots tab.
   online3 = reactive({input$rb3})
   
@@ -42,8 +50,112 @@ shinyServer(function(input, output) {
   online2 = reactive({input$rb2})
   output$counties2 <- renderUI({selectInput("selectedStates", "Choose States:", states_list, multiple = TRUE, selected='All') })
   
-  # These widgets are for the Scatter Plots tab.
-  online4 = reactive({input$rb4})
+  # These widgets are for the Crosstabs tab.
+  online1 = reactive({input$rb1})
+  KPI_Low = reactive({input$KPI1})     
+  KPI_Medium = reactive({input$KPI2})
+  
+  
+  # Begin Box Plot Tab ------------------------------------------------------------------
+  dfbp1 <- eventReactive(input$click5, {
+    if(input$selectedBoxplotStates == 'All') states_list <- input$selectedBoxplotStates
+    else states_list <- append(list("Skip" = "Skip"), input$selectedBoxplotStates)
+    if(online5() == "SQL") {
+      print("Getting from data.world")
+      df <- query(
+        data.world(propsfile = "www/.data.world"),
+        dataset="lordlemon/s-17-edv-final-project", type="sql",
+        query="select StateName, WhitePopulation,BlackPopulation,LatinoHispanic,WhitePopulationBelowPovertyLVL,BlackPopulationBelowPovertyLVL,LatinoHispanicBelowPovertyLVL from PovertyUSAStates
+        where (? = 'All' or StateName in (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?))",
+        queryParameters = states_list ) #%>% View()
+    }
+  })
+  
+  output$boxplotData1 <- renderDataTable({DT::datatable(dfbp1(), rownames = FALSE,
+                                                        extensions = list(Responsive = TRUE, 
+                                                                          FixedHeader = TRUE)
+  )
+  })
+  
+  dfbp2 <- eventReactive(c(input$click5, input$boxSalesRange1), {
+    dfbp1() %>% dplyr::filter(WhitePopulation >= input$boxSalesRange1[1] & WhitePopulation <= input$boxSalesRange1[2]) # %>% View()
+  })
+  # 
+  # dfbp3 <- eventReactive(c(input$click5, input$range5a), {
+  #   dfbp2() %>% dplyr::filter(lubridate::year(Order_Date) == as.integer(input$range5a) & lubridate::quarter(Order_Date) == (4 * (input$range5a - as.integer(input$range5a))) + 1) %>% dplyr::arrange(desc(Order_Date)) # %>% View()
+  # })
+  
+  output$boxplotPlot1 <- renderPlotly({
+    #View(dfbp3())
+    p <- ggplot(dfbp2()) + 
+      geom_boxplot(aes(x=StateName, y=WhitePopulation, colour="red")) + 
+      #ylim(0, input$boxSalesRange1[2]) +
+      theme(axis.text.x=element_text(angle=90, size=10, vjust=0.5))
+    ggplotly(p)
+  })
+  # End Box Plot Tab ___________________________________________________________
+  
+  # Begin Crosstab Tab ------------------------------------------------------------------
+  dfct1 <- eventReactive(input$click1, {
+    if(online1() == "SQL") {
+      print("Getting from data.world")
+      query(
+        data.world(propsfile = "www/.data.world"),
+        dataset="lordlemon/s-17-edv-final-project", type="sql",
+        query="select StateName,PopulationPolled,WhitePopulation,BlackPopulation,LatinoHispanic, (WhitePopulationBelowPovertyLVL+BlackPopulationBelowPovertyLVL+LatinoHispanicBelowPovertyLVL) as sum_poverty,  (WhitePopulationBelowPovertyLVL+BlackPopulationBelowPovertyLVL+LatinoHispanicBelowPovertyLVL)/PopulationPolled as ratio,
+case
+when (WhitePopulationBelowPovertyLVL+BlackPopulationBelowPovertyLVL+LatinoHispanicBelowPovertyLVL)/PopulationPolled < ? then '03 Low'
+when (WhitePopulationBelowPovertyLVL+BlackPopulationBelowPovertyLVL+LatinoHispanicBelowPovertyLVL)/PopulationPolled < ? then '02 Medium'
+else '01 High'
+end AS kpi
+from PovertyUSAStates",
+        queryParameters = list(KPI_Low(), KPI_Medium())
+      )  #%>% View()
+    }
+  })
+  output$data1 <- renderDataTable({DT::datatable(dfct1(), rownames = FALSE,
+                                                 extensions = list(Responsive = TRUE, FixedHeader = TRUE)
+  )
+  })
+  output$plot1 <- renderPlot({
+    dat_m <- dfct1()[, c("StateName","WhitePopulation","BlackPopulation","LatinoHispanic", "ratio", "kpi" )]
+    dat_m <- melt(dat_m, id.vars = c("StateName","kpi","ratio"),
+                  measure.vars = c("WhitePopulation","BlackPopulation","LatinoHispanic"))
+    ggplot(dat_m) + 
+      theme(axis.text.x=element_text(angle=90, size=16, vjust=0.5)) + 
+      theme(axis.text.y=element_text(size=16, hjust=0.5)) +
+      geom_text(aes(x=variable, y=StateName, label=value), size=6) +
+      geom_tile(aes(x=variable, y=StateName, fill=kpi), alpha=0.50)
+  })
+  # End Crosstab Tab ___________________________________________________________
+  
+  # Begin Histgram Tab ------------------------------------------------------------------
+  dfh1 <- eventReactive(input$click4, {
+    if(online4() == "SQL") {
+      print("Getting from data.world")
+      query(
+        data.world(propsfile = "www/.data.world"),
+        dataset="lordlemon/s-17-edv-final-project", type="sql",
+        query="select StateName, HispanicLatinoAbove200 from IncomeAbove200"
+      ) # %>% View()
+    }
+    })
+  
+  output$histogramData1 <- renderDataTable({DT::datatable(dfh1(), rownames = FALSE,
+                                                          extensions = list(Responsive = TRUE, 
+                                                                            FixedHeader = TRUE)
+  )
+  })
+  
+  output$histogramPlot1 <- renderPlotly({p <- ggplot(dfh1()) +
+    geom_histogram(aes(x=HispanicLatinoAbove200)) +
+    theme(axis.text.x=element_text(angle=90, size=10, vjust=0.5))
+  ggplotly(p)
+  })
+  # End Histogram Tab ___________________________________________________________
+  
+  
+  
   
   # Begin Scatter Plots Tab ------------------------------------------------------------------
   dfsc1 <- eventReactive(input$click3, {
@@ -67,16 +179,17 @@ shinyServer(function(input, output) {
     dat_m <- dfsc1()[, c("State","PovertyPopulation","TotalPopulationNOHI","MaleNoHI", "FemaleNoHI" )]
     dat_m <- melt(dat_m, id.vars = c("State","TotalPopulationNOHI"),
               measure.vars = c("MaleNoHI","FemaleNoHI"))
-    print(dat_m)
-    p <- ggplot(dat_m, aes(TotalPopulationNOHI, value, colour = variable)) + 
+   # print(dat_m)
+    p <- ggplot(dat_m, aes(TotalPopulationNOHI, value, colour = variable, state)) + 
     theme(axis.text.x=element_text(angle=90, size=16, vjust=0.5)) + 
     theme(axis.text.y=element_text(size=16, hjust=0.5)) +
-    geom_point(size=2)
+    geom_point(size=2)+
+    geom_text(aes(label=State),size = 3,hjust = .6)
+
   ggplotly(p)
+  
   })
   # End Scatter Plots Tab ___________________________________________________________
-  
- 
   
   
   # Begin Barchart Tab ------------------------------------------------------------------
@@ -91,7 +204,7 @@ shinyServer(function(input, output) {
         query="select p.StateName as StateName, p.PopulationPolled as PopulationPolled, ( p.WhitePopulationBelowPovertyLVL/p.WhitePopulation) as WhitePovertyPercent,  ( p.BlackPopulationBelowPovertyLVL/p.BlackPopulation) as BlackPovertyPercent,  ( p.LatinoHispanicBelowPovertyLVL/p.LatinoHispanic) as LatinoPovertyPercent
 from PovertyUSAStates p inner join IncomeAbove200 i on p.StateName = i.StateName
         group by p.WhitePopulation
-        ", queryParameters = "p.StateName"
+      ", queryParameters = "p.StateName"
         
       ) #%>% View()
     }
@@ -142,7 +255,7 @@ from PovertyUSAStates p inner join IncomeAbove200 i on p.StateName = i.StateName
   #map 
   output$barchartMap1 <- renderLeaflet({
     
-    states <- geojsonio::geojson_read("../tempgeo.json", what = "sp")
+    states <- geojsonio::geojson_read("tempgeo.json", what = "sp")
     
     bins <- c(.1, .2, .3, .4, .5, .6, .8, .9, 1, Inf)
     map_d <- mapDataQuery()
@@ -181,7 +294,7 @@ from PovertyUSAStates p inner join IncomeAbove200 i on p.StateName = i.StateName
     
   })
   # End Barchart Tab ___________________________________________________________
-  
+
   # Begin Wealth Tab ------------------------------------------------------------------
   dfwe <- eventReactive(input$click4, {
     if(online4() == "SQL") {
@@ -218,5 +331,6 @@ from PovertyUSAStates p inner join IncomeAbove200 i on p.StateName = i.StateName
     ggplotly(p)
   })
   # End Scatter Plots Tab ___________________________________________________________
+  
   
   })
