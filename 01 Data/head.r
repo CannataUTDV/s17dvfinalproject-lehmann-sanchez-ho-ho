@@ -1,0 +1,15 @@
+library(tidyr)
+
+IncomeAbove200k <- read.csv("../01 Data/IncomeAbove200.csv")
+PovertyUSAStates <- read.csv("../01 Data/PovertyUSAStates.csv")
+USAHealthInsurance <- read.csv("../01 Data/USAHealthInsurance.csv")
+
+head(IncomeAbove200k)
+head(PovertyUSAStates)
+head(USAHealthInsurance)
+summary(IncomeAbove200k)
+summary(PovertyUSAStates)
+summary(USAHealthInsurance)
+subset(IncomeAbove200k)
+subset(PovertyUSAStates)
+subset(USAHealthInsurance)
