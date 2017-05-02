@@ -30,8 +30,7 @@ dashboardPage(
               tabsetPanel(
                 tabPanel("Data",  
                          radioButtons("rb4", "Get data from:",
-                                      c("SQL" = "SQL",
-                                        "CSV" = "CSV"), inline=T),
+                                      c("SQL" = "SQL"), inline=T),
                         # uiOutput("scatterStates"), # See http://shiny.rstudio.com/gallery/dynamic-ui.html,
                          actionButton(inputId = "click4",  label = "To get data, click here"),
                          hr(), # Add space after button.
