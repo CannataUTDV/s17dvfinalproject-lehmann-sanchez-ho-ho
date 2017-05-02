@@ -1,11 +1,14 @@
 ---
-title: "Final Project"
-author: "Lehmann Jacob - Sanchez Luis - Minh-Tri Ho (mh47723) - Minh-Tuan Ho (mh47727)"
-date: "April 17, 2017"
+title: "Final Project - Poverty and Race Inequalities in the US"
+author: "Lehmann Jacob - Sanchez Luis - Minh-Tri Ho - Minh-Tuan Ho"
+date: "May 2, 2017"
 output: 
   html_document:
     toc: yes
 ---
+
+<!-- Cover -->
+<center>![Poverty and Inequalities](cover.png)</center>
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -14,14 +17,13 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # **Introduction**
 
-This is Final Project of the course CS329e Elements of Data Visualization. This notebook includes every step that we took to build our projet. In this project, we analysize sociological metrics from 2008-2014 and compare it to economitrics of The United States production during 1970 through 1986. We analyze correlations between education, peace, state unemployemnt, utilities along with infrastucture, to name a few.
+This is our R Notebook, for the Final Project of the course CS329e Elements of Data Visualization. This notebook includes every step that we took to build our project. In this project, we are going to look at the Poverty and Race Inequalities during the last Census Data, mainly looking at Wealth, per gender, per race, and per state, as well as Health Insurance. We often talk about race inequality in the United States, but it has always been hard to properly separate facts from cliches. In this project, we wanted to take a close look into those wealth disparities, and because we understand that the country is quite vast, we broke it down to the state level, giving us more insight into those inequalities throughout the country. 
 
 # **The Data**
 
-The US Production data set was collected from  and the US Sociological metrics was obtain from   and both uploaded to a private dataset on  We will use data from both datasets to analyze how today's education and poverty would have looked in the 1970s and 1980s compared to the US states production in capital stock. 
-
-The US Sociological metric dataset is composed of 50 observations (one per state) of 4 variables, whcih makes a total of 200 records, While the US States production set is comprised by 816 observations of 11 variables, which makes a total of less than 9,000 records. With a total of round 9,200 records from both datasets.
-
+The data has been collected from the Census Data, Census Health Insurance, Census Income, and Census Poverty, joining them all by state. The data had been uploaded to a private dataset [data.world](https://data.world/lordlemon/s-17-edv-final-project), and consists of 3 tables. The first table is Income above 200, which consists of 52 rows and 10 columns for 520 records. The rows describe the 52 US States, and the columns describe the State Name, the State Abbreviated Name, The number of white People earning above 200000$ per year, the number of black People earning above 200000$ per year, and the number of hispanic People earning above 200000$ per year. 
+The second table represents the Poverty of people in the United States per race and per state, with 52 rows and 5 columns for 260 records. The rows describe the 52 US States, and the columns describe the State Abbreviated Name, the State Name, the number of people below the poverty level, the white population, the black population, the hispanic population, the number of white people below the poverty level, the number of black people below the poverty level, and the number of hispanic people below the poverty level. 
+Finally, the last graph represent the number of people without health insurance per gender and per state, with 52 rows and 4 columns, for 208 records. The rows still describe the 52 States, and columns describe the State Abbreviation, the State Name, the Male Population without Health Insurance, and the Female Population without Health Insurance.
 
 # **R Configuration**
 
@@ -32,62 +34,75 @@ Below is the sessionInfo():
 sessionInfo(package=NULL)
 ```
 
-<!-- # ```{r, echo=FALSE} -->
-<!-- # ``` -->
+```{r, echo=FALSE}
+```
 
-<!-- # **Subset and Summary** -->
+**In order to start, we must install the following packages:**
+ggplot2, dplyr, tidyr, shiny, shinydashboard, data.world, readr, DT, leaflet, plotly, lubridate, reshape2, geojson, geojsonio
 
-<!-- ## *Head and Summary* -->
+#**Extract-Translate-Load (ETL)**
+XXX
 
-<!-- ```{r} -->
-<!-- #Downloading the data from data.world -->
-<!-- source("../01 Data/loading.R") -->
-<!-- ``` -->
-
-# **Data Visualization #1: Tableau - Water Capital Stock vs Percent above Poverty by State over Time**
-
-## *Description*
-With this visualization we try interprete how much being over the poverty line for each state (based on household income) affects the water and sewer capital stock. 
-
-## *Graph*
-
-
-## *Interpretation*
-
-We can see that for each state the aggregate of the water over "the state percent abover the poverty line" increases due to the water stock capital increasing through time and each state. The higher the capital the state has for water the higher this aggregate number is. Because the majority of the people are over the poverty line, the higher this percent number is, the more water and sewer is used through out the state. This correlates with the unemployment rate for each state and it's education aswell. 
-
-# **Data Visualization #2: Tableau - Employment vs. Education by State over Time**
+# **Data Visualization #1: Tableau - United States Map colored by Poverty **
 
 ## *Description*
 
-The amount of people with a degree increases the more opportunity a person has at obtaining a job. With this visualization we analyze the sum employment in non-agricultural payrolls per state vs the education for each state over 16 years using the education percentage (amount of people that have earned a bachelors degree) of today's dataset.
+In this first graph, we want to have a visual look of poverty in the United States per state. The map therefore represents the 52 US States, the color gradient spanning from Blue to Yellow, representing the percentage of people below the poverty level. The ratio more specifically represents the ratio of population in poverty divided by the state population.
 
 ## *Graph*
 
+<center>![MapPoverty](../03 Visualizations/USAbyPoverty.png)</center>
 
 ## *Interpretation*
-After analyzing the crosstab, we concluded that education plays a factor on the employment rate for each state. If the labor input of the non-agricultural employed changes, the KPI of this visualization changes. When the percent of the people who earn a Bachelor degree increases, the employment increases. The majority of the states had an small increase of the KPI, while others suffer a small decrease through out each year.
 
-# **Data Visualization #3: Tableau - Unemployment Vs Infrastucture/GSP ratio by State over Time**
+We can see that the northern states have relatively less poor people as a percentage of the population compared to the southern states which have relatively more. Few exceptions such as Michigan or Oregon in the North, but the trend stays quite valid for most states.
+
+# **Data Visualization #2: Tableau - Poverty per Race**
 
 ## *Description*
 
-Through this visualization we compare the unemployment from each state against the GSP (Gross State Products) for the same state. We try to find a correlation between how the unemployment affects or benefits in any way the GSP for given state and it's economy.
-
+Now that we have seen how Poverty looked like per state, we want to take a deeper look into the states for a comparison between races. For that, we built a Barchart of Poverty broken down by state and by race. The blue bars represent the black people, the red bars represent the hispanic people, and the green bars represent the white people living in poverty.
 
 ## *Graph*
 
-
+<center>![PovertyPerRace](../03 Visualizations/PovertyByRace.png)</center>
 
 ## *Interpretation*
 
-Through the analization of the crosstab of the two sets. We came to the conclusion that the state has a better GSP, when the infrastucture along with util and water are high. The unemployment of the state comes in factor because when the unemployment is low, there is a higher water and util stock per capital, increasing the KPI. Through out the data, there were ups and downs for each state as the time progressed. It correlates in some years with the employment vs education. Creating a good economy for each state depending on the GSP and the total stock per capita for hwy, water, and utils. Having a better infrastructure through out the state along with the economy.
+It is quite apparent that consistently throughout the states, while people represent a lower percentage of the population living in poverty, whereas black and hispanic people have relatively the same high percentage of people living in poverty. When taking the average of 22 percent, we can observe that white people are consistently and significantly below that average, whereas black and hispanic are mostly above. There are however a few states which were able to decrease those inequalities, such as Alaska and Hawaii, and in a lesser measure the District of Columbia for Hispanic people.
 
-# **Shiny CrossTab**
+# **Data Visualization #3: Tableau - Poverty versus Health Insurance by State and Gender**
 
-With this app hosted with Shinyapps, the crosstabs for each visualization can be viewed through this link: by selecting either Visu1, Visu2, Visu3
+## *Description*
 
+The third visualization is a plot that displays not having health insurance where one blue is male and red is female, as well as a linear regression per gender. That visualization implicitly measures the quality of Social Services to provide basic healthcare to poor people.
+
+## *Graph*
+
+<center>![PovertyVSHealthInsurance](../03 Visualizations/HealthInsuranceBySex.png)</center>
+
+## *Interpretation*
+
+Because of the size of some of the States, it makes sense to have California and Texas having a relatively high number of people below the poverty level, but compared to the number of people without health insurance, we can see that California follow the national average, whereas Texas or Florida have a higher rate of people without health insurance. On the other hand, states such as New York, Ohio, Michigan, Puerto Rico or Massachusetts have a really low rate of people without health insurance. At the same time, the absolute value of people still matter as it is understandable to have more trouble enforcing basic healthcare to poor people in bigger states.
+
+# **Data Visualization #4: Tableau - Wealthy People by Race and by State**
+
+## *Description*
+
+Finally, we want to contrast the picture that we have painted so far with the number of wealthy people, broken down by race. The last visualization is a scatter plot of the number of extremely rich people, which we categorized by the number of people who have a revenue that is above 200000$. We have black people in blue, hispanic people in red and white people in green.
+
+## *Graph*
+
+<center>![PovertyVSHealthInsurance](../03 Visualizations/ExtremeWealthbyRace.png)</center>
+
+## *Interpretation*
+
+This graph confirms the previous ones, showing a large disparity between white people and black or hispanic people. We see that the more rich people their are, the more the ratio of white people command the group. That contrast is more apparent in some states, especially in California, New York and Texas, but also quite apparent in Florida, New Jersey, Illinois, Virginia, Pennsylvania and Massachussetts.
+
+# **Shiny BarChart**
+
+With this app hosted with Shinyapps, the barcharts for each visualization can be viewed through this link: https://leo16.shinyapps.io/finalproject2/
 
 # **Conclusion**
 
-In conclusion, we can see that the education percent along with the poverty percent from 2008-2014 has an effect on the US States production which measures the the econometrics for each of the 50 states in the United States. We concluded that the percent above the poverty line has an effect on the water per capital for each state along with 16 years, [1970-1986]. Also, the percent of people who have earned a Bachelor's degree has an effect on the employment of non-agricultural payrolls by state. Along with these two visualization we also found a correlation of the GSP, where the higher the GSP the less unemployed people were for each state, increasing the hwy, water, util capital of each state, resulting in a better infrastructure. The employement and poverty percent from the US State Sociological metrics has a positive effect on the US States production dataset from 1970 through 1986.
+In conclusion, we were able to get a better look into Poverty and Wealth Inequality in the United States of America. We would hope that in a country as developped as ours, that those social disparities would be less obvious. Unfortunately, those three visualizations show that poor people still have the same low access to Education and Health Insurance. On top of that, in case of female people, even having access to Education is not a predictor of wealth.
