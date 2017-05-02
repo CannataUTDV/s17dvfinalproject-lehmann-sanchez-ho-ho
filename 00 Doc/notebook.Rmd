@@ -135,7 +135,7 @@ write.csv(df, gsub("Pre_", "", file_path), row.names=FALSE, na = "")
 
 ## *Description*
 
-In this first graph, we want to have a visual look of poverty in the United States per state. The map therefore represents the 52 US States, the color gradient spanning from Blue to Yellow, representing the percentage of people below the poverty level. The ratio more specifically represents the ratio of population in poverty divided by the state population.
+In this first graph, we want to have a visual look of poverty in the United States per state. The map therefore represents the 50 US States, Puerto Rico and the District of Columbia, the color gradient spanning from Blue to Yellow, representing the percentage of people below the poverty level. The ratio more specifically represents the ratio of population in poverty divided by the state population.
 
 ## *Graph*
 
