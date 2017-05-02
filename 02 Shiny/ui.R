@@ -10,12 +10,13 @@ dashboardPage(
   ),
   dashboardSidebar(
     sidebarMenu(
-      menuItem("Box Plots", tabName = "boxplot", icon = icon("dashboard")),
+      
       menuItem("ScatterPlot", tabName = "scatter", icon = icon("dashboard")),
       menuItem("Histogram", tabName = "histogram", icon = icon("dashboard")),
       menuItem("Crosstabs, KPIs, Parameters", tabName = "crosstab", icon = icon("dashboard")),
       menuItem("Wealth", tabName = "wealthtab", icon = icon("dashboard")),
-      menuItem("Barcharts, Table Calculations", tabName = "barchart", icon = icon("dashboard"))
+      menuItem("Barcharts, Table Calculations", tabName = "barchart", icon = icon("dashboard")),
+      menuItem("Box Plots", tabName = "boxplot", icon = icon("dashboard"))
     )
   ),
   dashboardBody(
@@ -32,11 +33,11 @@ dashboardPage(
                          radioButtons("rb4", "Get data from:",
                                       c("SQL" = "SQL"), inline=T),
                         # uiOutput("scatterStates"), # See http://shiny.rstudio.com/gallery/dynamic-ui.html,
-                         actionButton(inputId = "click4",  label = "To get data, click here"),
+                         actionButton(inputId = "click6",  label = "To get data, click here"),
                          hr(), # Add space after button.
                          DT::dataTableOutput("wealthData")
                 ),
-                tabPanel("Wealth Plot", plotlyOutput("wealthPlot", height=1000))
+                tabPanel("Wealth Plot", plotlyOutput("wealthPlot", height=1000, width = 1000))
               )
       ),
 
