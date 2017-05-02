@@ -1,6 +1,7 @@
 # server.R
 require(ggplot2)
 require(dplyr)
+library(tidyr)
 require(shiny)
 require(shinydashboard)
 require(data.world)
@@ -40,6 +41,9 @@ shinyServer(function(input, output) {
   # These widgets are for the Barcharts tab.
   online2 = reactive({input$rb2})
   output$counties2 <- renderUI({selectInput("selectedStates", "Choose States:", states_list, multiple = TRUE, selected='All') })
+  
+  # These widgets are for the Scatter Plots tab.
+  online4 = reactive({input$rb4})
   
   # Begin Scatter Plots Tab ------------------------------------------------------------------
   dfsc1 <- eventReactive(input$click3, {
@@ -177,5 +181,42 @@ from PovertyUSAStates p inner join IncomeAbove200 i on p.StateName = i.StateName
     
   })
   # End Barchart Tab ___________________________________________________________
+  
+  # Begin Wealth Tab ------------------------------------------------------------------
+  dfwe <- eventReactive(input$click4, {
+    if(online4() == "SQL") {
+      print("Getting from data.world")
+      query(
+        data.world(propsfile = "www/.data.world"),
+        dataset="lordlemon/s-17-edv-final-project", type="sql",
+        query="select i.StateName as State, i.WhiteAbove200 as White, i.BlackAbove200 as Black, i.HispanicLatinoAbove200 as HispanicLatino from IncomeAbove200 i"
+      ) # %>% View()
+    }
+    
+  })
+  output$wealthData <- renderDataTable({DT::datatable(dfwe(), rownames = FALSE,
+                                                        extensions = list(Responsive = TRUE, 
+                                                                          FixedHeader = TRUE)
+  )
+  })
+  
+  output$wealthPlot <- renderPlotly({
+    dat_m <- dfwe()[, c("State","White","Black","HispanicLatino")]
+    dat_m <- gather(dat_m, White, Black, HispanicLatino, key='Ethnicity', value='above200',convert = T)
+    # dat_m$States <- with(dat_m, reorder(State,State,function(x)-length(x)))
+    # st_table <- table(dat_m$State)
+    # st_levels <- names(st_table)[order(st_table)]
+    # dat_m$States <- factor(dat_m$State, levels = st_levels)
+    # x <- transform(dat_m, variable=reorder(variable, -value) ) 
+    # print(dat_m)
+    # ggplot(dat_m, aes(reorder(States,above200), above200)) + geom_point()
+    p <- ggplot(dat_m) + 
+      theme(axis.text.x=element_text(angle=90, size=16, vjust=0.5)) + 
+      theme(axis.text.y=element_text(size=16, hjust=0.5)) +
+      geom_point(aes(x=reorder(State,above200), y=above200, colour = Ethnicity), size=2, alpha=0.5) +
+      labs(x="States",y="Population above $200k")
+    ggplotly(p)
+  })
+  # End Scatter Plots Tab ___________________________________________________________
   
   })
