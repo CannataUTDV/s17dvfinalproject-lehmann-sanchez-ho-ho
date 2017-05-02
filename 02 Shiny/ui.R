@@ -11,7 +11,8 @@ dashboardPage(
   dashboardSidebar(
     sidebarMenu(
       menuItem("ScatterPlot", tabName = "scatter", icon = icon("dashboard")),
-      menuItem("Barcharts, Table Calculations", tabName = "barchart", icon = icon("dashboard"))
+      menuItem("Barcharts, Table Calculations", tabName = "barchart", icon = icon("dashboard")),
+      menuItem("Wealth", tabName = "wealthtab", icon = icon("dashboard"))
     )
   ),
   dashboardBody(
@@ -27,7 +28,7 @@ dashboardPage(
                          radioButtons("rb3", "Get data from:",
                                       c("SQL" = "SQL",
                                         "CSV" = "CSV"), inline=T),
-                         uiOutput("scatterStates"), # See http://shiny.rstudio.com/gallery/dynamic-ui.html,
+                      #   uiOutput("scatterStates"), # See http://shiny.rstudio.com/gallery/dynamic-ui.html,
                          actionButton(inputId = "click3",  label = "To get data, click here"),
                          hr(), # Add space after button.
                          DT::dataTableOutput("scatterData1")
@@ -54,8 +55,22 @@ dashboardPage(
                 tabPanel("Poverty on each state by race", plotOutput("barchartPlot1", height=1500)),
                 tabPanel("Unites States Poverty by State", leafletOutput("barchartMap1", height = 800))
               )
-      )
+      ),
       # End Barchart tab content.
+      tabItem(tabName = "wealthtab",
+              tabsetPanel(
+                tabPanel("Data",  
+                         radioButtons("rb4", "Get data from:",
+                                      c("SQL" = "SQL",
+                                        "CSV" = "CSV"), inline=T),
+                        # uiOutput("scatterStates"), # See http://shiny.rstudio.com/gallery/dynamic-ui.html,
+                         actionButton(inputId = "click4",  label = "To get data, click here"),
+                         hr(), # Add space after button.
+                         DT::dataTableOutput("wealthData")
+                ),
+                tabPanel("Wealth Plot", plotlyOutput("wealthPlot", height=1000))
+              )
+      )
     )
   )
 )
