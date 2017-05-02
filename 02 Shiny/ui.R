@@ -10,6 +10,7 @@ dashboardPage(
   ),
   dashboardSidebar(
     sidebarMenu(
+      menuItem("ScatterPlot", tabName = "scatter", icon = icon("dashboard")),
       menuItem("Barcharts, Table Calculations", tabName = "barchart", icon = icon("dashboard"))
     )
   ),
@@ -19,6 +20,23 @@ dashboardPage(
                ".shiny-output-error:before { visibility: hidden; }"
     ),    
     tabItems(
+      # Begin Scatter Plots tab content.
+      tabItem(tabName = "scatter",
+              tabsetPanel(
+                tabPanel("Data",  
+                         radioButtons("rb3", "Get data from:",
+                                      c("SQL" = "SQL",
+                                        "CSV" = "CSV"), inline=T),
+                         uiOutput("scatterStates"), # See http://shiny.rstudio.com/gallery/dynamic-ui.html,
+                         actionButton(inputId = "click3",  label = "To get data, click here"),
+                         hr(), # Add space after button.
+                         DT::dataTableOutput("scatterData1")
+                ),
+                tabPanel("Simple Scatter Plot", plotlyOutput("scatterPlot1", height=1000))
+              )
+      ),
+      # End Scatter Plots tab content.
+      
       # Begin Barchart tab content.
       tabItem(tabName = "barchart",
               tabsetPanel(
@@ -29,17 +47,12 @@ dashboardPage(
                          uiOutput("counties2"), # See http://shiny.rstudio.com/gallery/dynamic-ui.html
                          actionButton(inputId = "click2",  label = "To get data, click here"),
                          hr(), # Add space after button.
-                         'Here is data for Female and Male Povery along with Education by County',
+                         'Here is the data of the poverty percentage by each state',
                          hr(),
-                         DT::dataTableOutput("barchartData1"),
-                         hr(),
-                         'Here is data Poverty and Health Insurance Males',
-                         hr(),
-                         DT::dataTableOutput("barchartData3")
+                         DT::dataTableOutput("barchartData1")
                 ),
-                tabPanel("Barchart for Undergrad Females and Poverty ","Black: Total Number of FemalePov18to24 per County. Blue :(FemalePov18to24 - FemaleUnderGrad). Red: Average betwen all counties", plotOutput("barchartPlot1", height=2600)),
-                tabPanel("Barchart for Undergrad Males and Poverty ","Black: Total Number of MalePov18to24 per County. Blue :(MalePov18to24 - MaleUnderGrad). Red: Average betwen all counties", plotOutput("barchartPlot2", height=2600)),
-                tabPanel("Poverty and Health Insurance Males", plotlyOutput("barchartPlot3", height=2800) )
+                tabPanel("Poverty on each state by race", plotOutput("barchartPlot1", height=1500)),
+                tabPanel("Unites States Poverty by State", leafletOutput("barchartMap1", height = 800))
               )
       )
       # End Barchart tab content.
