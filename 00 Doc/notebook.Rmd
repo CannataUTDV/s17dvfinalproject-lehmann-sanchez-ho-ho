@@ -73,7 +73,6 @@ We have 3 similar ETL, one for each dataset, we are going to reproduce one here 
 
 ```{r ETL, eval=FALSE}
 require(readr)
-#require(plyr)
 
 ## Set the Working Directory to the 02 Shiny
 file_path = "../01 Data/PreETL_IncomeAbove200.csv"
@@ -99,7 +98,7 @@ na2emptyString <- function (x) {
   return(x)
 }
 
-## Replace special characters using regular expressions
+## Replace special characters in dimensions using regular expressions
 if( length(dimensions) > 0) {
   for(d in dimensions) {
     ## Change NA to the empty string.
@@ -128,6 +127,7 @@ if( length(measures) > 1) {
   }
 }
 
+## create new csv file
 write.csv(df, gsub("Pre_", "", file_path), row.names=FALSE, na = "")
 ```
 
